@@ -1,0 +1,123 @@
+PS D:\EPAM_WORK\DZ\kube\kubehw\task1> kubectl version --client
+Client Version: version.Info{Major:"1", Minor:"22", GitVersion:"v1.22.0", GitCommit:"c2b5237ccd9c0f1d600d3072634ca66cefdf272f", GitTreeState:"clean", BuildDate:"2021-08-04T18:03:20Z", GoVersion:"go1.16.6", Compiler:"gc", Platform:"windows/aPS D:\EPAM_WORK\DZ\kube\kubehw\task1> minikube start
+😄  minikube v1.24.0 on Microsoft Windows 10 Pro 10.0.19043 Build 19043
+🎉  minikube 1.25.1 is available! Download it: https://github.com/kubernetes/minikube/releases/tag/v1.25.1
+💡  To disable this notice, run: 'minikube config set WantUpdateNotification false'
+
+✨  Automatically selected the virtualbox driver
+👍  Starting control plane node minikube in cluster minikube
+🔥  Creating virtualbox VM (CPUs=4, Memory=8192MB, Disk=20000MB) ...
+❗  This VM is having trouble accessing https://k8s.gcr.io
+💡  To pull new external images, you may need to configure a proxy: https://minikube.sigs.k8s.io/docs/reference/networking/proxy/
+🐳  Preparing Kubernetes v1.22.3 on Docker 20.10.8 ...
+    ▪ Generating certificates and keys ...
+    ▪ Booting up control plane ...
+    ▪ Configuring RBAC rules ...
+    ▪ Using image gcr.io/k8s-minikube/storage-provisioner:v5
+🌟  Enabled addons: storage-provisioner, default-storageclass
+🏄  Done! kubectl is now configured to use "minikube" cluster and "default" namespace by default
+PS D:\EPAM_WORK\DZ\kube\kubehw\task1> kubectl cluster-info
+Kubernetes control plane is running at https://192.168.59.109:8443
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+PS D:\EPAM_WORK\DZ\kube\kubehw\task1> kubectl get nodes
+NAME       STATUS   ROLES                  AGE   VERSION
+minikube   Ready    control-plane,master   29s   v1.22.3
+PS D:\EPAM_WORK\DZ\kube\kubehw\task1> kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.3.1/aio/deploy/recommended.yaml
+namespace/kubernetes-dashboard created
+serviceaccount/kubernetes-dashboard created
+secret/kubernetes-dashboard-certs created
+secret/kubernetes-dashboard-key-holder created
+configmap/kubernetes-dashboard-settings created
+role.rbac.authorization.k8s.io/kubernetes-dashboard created
+clusterrole.rbac.authorization.k8s.io/kubernetes-dashboard created
+rolebinding.rbac.authorization.k8s.io/kubernetes-dashboard created
+clusterrolebinding.rbac.authorization.k8s.io/kubernetes-dashboard created
+deployment.apps/kubernetes-dashboard created
+service/dashboard-metrics-scraper created
+seccompProfile" field instead
+deployment.apps/dashboard-metrics-scraper created
+PS D:\EPAM_WORK\DZ\kube\kubehw\task1> kubectl get pod -n kubernetes-dashboard
+NAME                                         READY   STATUS    RESTARTS   AGE
+dashboard-metrics-scraper-856586f554-28vbb   1/1     Running   0          17s
+kubernetes-dashboard-67484c44f6-srptr        1/1     Running   0          17s
+PS D:\EPAM_WORK\DZ\kube\kubehw\task1> kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+serviceaccount/metrics-server created
+clusterrole.rbac.authorization.k8s.io/system:aggregated-metrics-reader created
+clusterrole.rbac.authorization.k8s.io/system:metrics-server created
+rolebinding.rbac.authorization.k8s.io/metrics-server-auth-reader created
+clusterrolebinding.rbac.authorization.k8s.io/metrics-server:system:auth-delegator created
+clusterrolebinding.rbac.authorization.k8s.io/system:metrics-server created
+service/metrics-server created
+deployment.apps/metrics-server created
+apiservice.apiregistration.k8s.io/v1beta1.metrics.k8s.io created
+PS D:\EPAM_WORK\DZ\kube\kubehw\task1> kubectl edit -n kube-system deployment metrics-server
+deployment.apps/metrics-server edited
+PS D:\EPAM_WORK\DZ\kube\kubehw\task1> kubectl describe sa -n kube-system default
+Name:                default
+Namespace:           kube-system
+Labels:              <none>
+Annotations:         <none>
+Image pull secrets:  <none>
+Mountable secrets:   default-token-5hthw
+Tokens:              default-token-5hthw
+Events:              <none>
+PS D:\EPAM_WORK\DZ\kube\kubehw\task1> kubectl get secrets -n kube-system
+NAME                                             TYPE                                  DATA   AGE
+attachdetach-controller-token-tz6bb              kubernetes.io/service-account-token   3      3m12s
+bootstrap-signer-token-lmcms                     kubernetes.io/service-account-token   3      3m11s
+bootstrap-token-s8ey0i                           bootstrap.kubernetes.io/token         6      3m22s
+certificate-controller-token-gkdqt               kubernetes.io/service-account-token   3      3m23s
+clusterrole-aggregation-controller-token-brjgp   kubernetes.io/service-account-token   3      3m23s
+coredns-token-25jxv                              kubernetes.io/service-account-token   3      3m22s
+cronjob-controller-token-8p644                   kubernetes.io/service-account-token   3      3m12s
+daemon-set-controller-token-cvmsc                kubernetes.io/service-account-token   3      3m11s
+default-token-5hthw                              kubernetes.io/service-account-token   3      3m10s
+deployment-controller-token-2zfhc                kubernetes.io/service-account-token   3      3m13s
+disruption-controller-token-4bcjx                kubernetes.io/service-account-token   3      3m13s
+endpoint-controller-token-qgdhm                  kubernetes.io/service-account-token   3      3m13s
+endpointslice-controller-token-vxjwh             kubernetes.io/service-account-token   3      3m11s
+endpointslicemirroring-controller-token-xxgj7    kubernetes.io/service-account-token   3      3m13s
+ephemeral-volume-controller-token-xr2r4          kubernetes.io/service-account-token   3      3m23s
+expand-controller-token-4zg5q                    kubernetes.io/service-account-token   3      3m13s
+generic-garbage-collector-token-zw89t            kubernetes.io/service-account-token   3      3m23s
+horizontal-pod-autoscaler-token-k5jhj            kubernetes.io/service-account-token   3      3m11s
+job-controller-token-7jg6s                       kubernetes.io/service-account-token   3      3m13s
+kube-proxy-token-kjqzm                           kubernetes.io/service-account-token   3      3m22s
+metrics-server-token-87zpq                       kubernetes.io/service-account-token   3      2m15s
+namespace-controller-token-pslmx                 kubernetes.io/service-account-token   3      3m12s
+persistent-volume-binder-token-6sr8g             kubernetes.io/service-account-token   3      3m23s
+pod-garbage-collector-token-45xx5                kubernetes.io/service-account-token   3      3m13s
+pv-protection-controller-token-tn2xl             kubernetes.io/service-account-token   3      3m13s
+pvc-protection-controller-token-5fwpv            kubernetes.io/service-account-token   3      3m11s
+replicaset-controller-token-bkkn9                kubernetes.io/service-account-token   3      3m12s
+resourcequota-controller-token-drq2j             kubernetes.io/service-account-token   3      3m23s
+root-ca-cert-publisher-token-t9bzs               kubernetes.io/service-account-token   3      3m13s
+service-account-controller-token-vndgg           kubernetes.io/service-account-token   3      3m13s
+service-controller-token-p4s7d                   kubernetes.io/service-account-token   3      3m13s
+statefulset-controller-token-lzm85               kubernetes.io/service-account-token   3      3m13s
+storage-provisioner-token-tnblm                  kubernetes.io/service-account-token   3      3m21s
+token-cleaner-token-5td2d                        kubernetes.io/service-account-token   3      3m23s
+ttl-after-finished-controller-token-mnbh7        kubernetes.io/service-account-token   3      3m12s
+ttl-controller-token-smfph                       kubernetes.io/service-account-token   3      3m13s
+PS D:\EPAM_WORK\DZ\kube\kubehw\task1> kubectl get secrets -n kube-system default-token-5hthw -o yaml
+apiVersion: v1
+data:
+  ca.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCakNDQWU2Z0F3SUJBZ0lCQVRBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwdGFXNXAKYTNWaVpVTkJNQjRYRFRJeE1USXdOakUzTkRVMU0xb1hEVE14TVRJd05URTNORFUxTTFvd0ZURVRNQkVHQTFVRQpBeE1LYldsdWFXdDFZbVZEUVRDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTTNzCk9WVDJSSTVYblRDSmk4T29MMk9sMFVTd3NPYVBpTFMwQ3N2S1pTZHZoNTM0WEpzaWJRMFl1RFlZcXpNVGNTekMKVlFzK3NPK2p3NmNPTVp2ODdmY1FZM01UTG9Td0k5SzNRS3Q4UHpxYzdLMkU5MGcxSEZ0TTZTaFMvSEd0M0xBWAp4bm5DYkNDd3JTUzB2TU1wa2VhMHZWVXoxemhsMjQzSUxCcW16U2FPTmgxQ2VpdXpXR3RYRi9kTUhKbkg1SjJHCllZbFhCTlNCaXJZQ0pCUHRCNS85VEdlaW5RRjlEeGl0bXBLR0xDY1VBT0ZrUGFvQUlZWDNEYkFtazRwU042YXcKMHo5MU92VDhoVlRkVVNWOVFUUVJOVzJEdVdIWG05T2IvdjZtMGtQQ2tMUXlBbUlndlBJUEVIMEFrTzJ4bnByTQptTGJLeWp1R0xYL0k4NkJ4R284Q0F3RUFBYU5oTUY4d0RnWURWUjBQQVFIL0JBUURBZ0trTUIwR0ExVWRKUVFXCk1CUUdDQ3NHQVFVRkJ3TUNCZ2dyQmdFRkJRY0RBVEFQQmdOVkhSTUJBZjhFQlRBREFRSC9NQjBHQTFVZERnUVcKQkJUMVZwWG1ueVZaSEYyZVRuc1NuQmJobW01SkNUQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUF3MGF1RG5RKwpyVjhJUkorRUhPb0FGUmJCSU5OVE1wZ3NXUk9tdEhLbGl2Si90aTlrS24yY0ZiN2szcllETVFyUTVZbDVPc1pYCkdoQzFHVTVlbC83T0JTdEhQUEZ6V1JPRm14NURWemhNcmpnMktkVE9QOG51TGZvMS9ReTRtZHQyQnU2K1laaVYKQ3hpOUoycFpZemxXWWpoWVhvSGZlQkR6QTl0bU1yZ1duMGJiZWttd1luQlRadFhHbnkzMnQ4Yk13VG1QUUZhSgpGWm9oNjhzL090TXR0d1dlRVhuTnhlRWdCT3hYZXVNZkM0TitIWW9nWTJIWk9HUXhteDd0SytQSFVSTFo4bEJSCi9ydDVMTkE2bm5oMW5mUUd6MlE1S0RzZ3B2OXcxTUdjSG1sSFNvYm5RNVJBVUcxTmFVUzJ0cEFnMExlNXRQeDkKU0FwK2tueHNmb1c3bGc9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+  namespace: a3ViZS1zeXN0ZW0=
+  token: ZXlKaGJHY2lPaUpTVXpJMU5pSXNJbXRwWkNJNklqZERXVFYwWms1ME9IcFNielZ1V0cxRWNXRjZiRXhDY25oTFIzaGhWbkJHYUVONk5HWjRRVmQzVmtFaWZRLmV5SnBjM01pT2lKcmRXSmxjbTVsZEdWekwzTmxjblpwWTJWaFkyTnZkVzUwSWl3aWEzVmlaWEp1WlhSbGN5NXBieTl6WlhKMmFXTmxZV05qYjNWdWRDOXVZVzFsYzNCaFkyVWlPaUpyZFdKbExYTjVjM1JsYlNJc0ltdDFZbVZ5Ym1WMFpYTXVhVzh2YzJWeWRtbGpaV0ZqWTI5MWJuUXZjMlZqY21WMExtNWhiV1VpT2lKa1pXWmhkV3gwTFhSdmEyVnVMVFZvZEdoM0lpd2lhM1ZpWlhKdVpYUmxjeTVwYnk5elpYSjJhV05sWVdOamIzVnVkQzl6WlhKMmFXTmxMV0ZqWTI5MWJuUXVibUZ0WlNJNkltUmxabUYxYkhRaUxDSnJkV0psY201bGRHVnpMbWx2TDNObGNuWnBZMlZoWTJOdmRXNTBMM05sY25acFkyVXRZV05qYjNWdWRDNTFhV1FpT2lKalltTXdOakJtTVMxa1lUWTRMVFJpTkRZdFlUZG1OaTAyWm1NNE5XRTFOVGMwWXpNaUxDSnpkV0lpT2lKemVYTjBaVzA2YzJWeWRtbGpaV0ZqWTI5MWJuUTZhM1ZpWlMxemVYTjBaVzA2WkdWbVlYVnNkQ0o5LkpTWFhLM2gwM0VXYUs4bGRvSHRxTGlxQ2dRcmhVbmRDV0h2bnYwbmZzNW9QZHlidF9EOFNzaURURkVCX25GanZlcl94bDRVTktpUkt5UHN6ekU4alhFUmRkeW9ZWkpBWjFkUkxoNHBnaTM3bUlqVVBaaUVZRkRCQmxBQVlUOFdDMHgzcDNLY3pUSmZYeElRS3RMTHIyRVk1R09oSXg3V3FlblBFN0pDNXRpbm5taVFwXzNfNklYZDFsZFRqT21yMzZaQWg4QTlJX3JvRDBGQmpfSW5jOGtZa0VZdkJtS2RlR3RpYUd4YUswUlZkdWJSTXNEWUt4VG1LMXlqQmN5ZTZFVXdKUUtIYy10ZWlOeF9ibXo2VDVWbHI0b19JR25DaTFuMnp2bEtETzMzRmdtc3lZY0N0bm1ROEQ1T0djTEhBcGJXa1JZMVZldko3dGdJS3RWQnhhdw==
+kind: Secret
+metadata:
+  annotations:
+    kubernetes.io/service-account.name: default
+    kubernetes.io/service-account.uid: cbc060f1-da68-4b46-a7f6-6fc85a5574c3
+  creationTimestamp: "2022-02-04T09:23:57Z"
+  name: default-token-5hthw
+  namespace: kube-system
+  resourceVersion: "424"
+  uid: 249ce8fb-bfe5-492c-bb62-faeca9d82e25
+type: kubernetes.io/service-account-token
+PS D:\EPAM_WORK\DZ\kube\kubehw\task1> [Text.Encoding]::Utf8.GetString([Convert]::FromBase64String('ZXlKaGJHY2lPaUpTVXpJMU5pSXNJbXRwWkNJNklqZERXVFYwWms1ME9IcFNielZ1V0cxRWNXRjZiRXhDY25oTFIzaGhWbkJHYUVONk5HWjRRVmQzVmtFaWZRLmV5SnBjM01pT2lKcmRXSmxjbTVsZEdWekwzTmxjblpwWTJWaFkyTnZkVzUwSWl3aWEzVmlaWEp1WlhSbGN5NXBieTl6WlhKMmFXTmxZV05qYjNWdWRDOXVZVzFsYzNCaFkyVWlPaUpyZFdKbExYTjVjM1JsYlNJc0ltdDFZbVZ5Ym1WMFpYTXVhVzh2YzJWeWRtbGpaV0ZqWTI5MWJuUXZjMlZqY21WMExtNWhiV1VpT2lKa1pXWmhkV3gwTFhSdmEyVnVMVFZvZEdoM0lpd2lhM1ZpWlhKdVpYUmxjeTVwYnk5elpYSjJhV05sWVdOamIzVnVkQzl6WlhKMmFXTmxMV0ZqWTI5MWJuUXVibUZ0WlNJNkltUmxabUYxYkhRaUxDSnJkV0psY201bGRHVnpMbWx2TDNObGNuWnBZMlZoWTJOdmRXNTBMM05sY25acFkyVXRZV05qYjNWdWRDNTFhV1FpT2lKalltTXdOakJtTVMxa1lUWTRMVFJpTkRZdFlUZG1OaTAyWm1NNE5XRTFOVGMwWXpNaUxDSnpkV0lpT2lKemVYTjBaVzA2YzJWeWRtbGpaV0ZqWTI5MWJuUTZhM1ZpWlMxemVYTjBaVzA2WkdWbVlYVnNkQ0o5LkpTWFhLM2gwM0VXYUs4bGRvSHRxTGlxQ2dRcmhVbmRDV0h2bnYwbmZzNW9QZHlidF9EOFNzaURURkVCX25GanZlcl94bDRVTktpUkt5UHN6ekU4alhFUmRkeW9ZWkpBWjFkUkxoNHBnaTM3bUlqVVBaaUVZRkRCQmxBQVlUOFdDMHgzcDNLY3pUSmZYeElRS3RMTHIyRVk1R09oSXg3V3FlblBFN0pDNXRpbm5taVFwXzNfNklYZDFsZFRqT21yMzZaQWg4QTlJX3JvRDBGQmpfSW5jOGtZa0VZdkJtS2RlR3RpYUd4YUswUlZkdWJSTXNEWUt4VG1LMXlqQmN5ZTZFVXdKUUtIYy10ZWlOeF9ibXo2VDVWbHI0b19JR25DaTFuMnp2bEtETzMzRmdtc3lZY0N0bm1ROEQ1T0djTEhBcGJXa1JZMVZldko3dGdJS3RWQnhhdw=='))
+eyJhbGciOiJSUzI1NiIsImtpZCI6IjdDWTV0Zk50OHpSbzVuWG1EcWF6bExCcnhLR3hhVnBGaEN6NGZ4QVd3VkEifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJkZWZhdWx0LXRva2VuLTVodGh3Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImRlZmF1bHQiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiJjYmMwNjBmMS1kYTY4LTRiNDYtYTdmNi02ZmM4NWE1NTc0YzMiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06ZGVmYXVsdCJ9.JSXXK3h03EWaK8ldoHtqLiqCgQrhUndCWHvnv0nfs5oPdybt_D8SsiDTFEB_nFjver_xl4UNKiRKyPszzE8jXERddyoYZJAZ1dRLh4pgi37mIjUPZiEYFDBBlAAYT8WC0x3p3KczTJfXxIQKtLLr2EY5GOhIx7WqenPE7JC5tinnmiQp_3_6IXd1ldTjOmr36ZAh8A9I_roD0FBj_Inc8kYkEYvBmKdeGtiaGxaK0RVdubRMsDYKxTmK1yjBcye6EUwJQKHc-teiNx_bmz6T5Vlr4o_IGnCi1n2zvlKDO33FgmsyYcCtnmQ8D5OGcLHApbWkRY1VevJ7tgIKtVBxaw
+PS D:\EPAM_WORK\DZ\kube\kubehw\task1> kubectl proxy
+Starting to serve on 127.0.0.1:8001
