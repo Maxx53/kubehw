@@ -1,0 +1,49 @@
+PS D:\EPAM_WORK\DZ\kube\kubehw\task2\canary> foreach ($file in $(Get-ChildItem *.yaml)) {kubectl apply -f $file}
+deployment.apps/web-canary created
+deployment.apps/web created
+ingress.networking.k8s.io/ingress-web-canary created
+ingress.networking.k8s.io/ingress-web created
+configmap/nginx-configmap-canary created
+configmap/nginx-configmap created
+service/web created
+service/web-canary created
+PS D:\EPAM_WORK\DZ\kube\kubehw\task2\canary> kubectl get pods
+NAME                         READY   STATUS    RESTARTS   AGE
+web-5584c6c5c6-5zqhl         1/1     Running   0          38s
+web-5584c6c5c6-86rk7         1/1     Running   0          38s
+web-5584c6c5c6-cww5m         1/1     Running   0          38s
+web-5584c6c5c6-g4bhb         1/1     Running   0          38s
+web-5584c6c5c6-jrspm         1/1     Running   0          38s
+web-5584c6c5c6-nb2hk         1/1     Running   0          38s
+web-5584c6c5c6-qd95f         1/1     Running   0          38s
+web-5584c6c5c6-xbtwr         1/1     Running   0          38s
+web-5584c6c5c6-z2lhg         1/1     Running   0          38s
+web-5584c6c5c6-zdjgb         1/1     Running   0          38s
+web-canary-fc68c5db6-25xbv   1/1     Running   0          38s
+web-canary-fc68c5db6-597f4   1/1     Running   0          38s
+web-canary-fc68c5db6-g9575   1/1     Running   0          38s
+web-canary-fc68c5db6-gwzzk   1/1     Running   0          38s
+web-canary-fc68c5db6-lx8bm   1/1     Running   0          38s
+PS D:\EPAM_WORK\DZ\kube\kubehw\task2\canary> foreach ($i in 1..10){(curl 192.168.59.110 -Headers @{"canary" = "always"}).Content.Trim()}
+Hello from CANARY pod: web-canary-fc68c5db6-g9575
+Hello from CANARY pod: web-canary-fc68c5db6-597f4
+Hello from CANARY pod: web-canary-fc68c5db6-25xbv
+Hello from CANARY pod: web-canary-fc68c5db6-lx8bm
+Hello from CANARY pod: web-canary-fc68c5db6-gwzzk
+Hello from CANARY pod: web-canary-fc68c5db6-g9575
+Hello from CANARY pod: web-canary-fc68c5db6-597f4
+Hello from CANARY pod: web-canary-fc68c5db6-25xbv
+Hello from CANARY pod: web-canary-fc68c5db6-lx8bm
+Hello from CANARY pod: web-canary-fc68c5db6-gwzzk
+PS D:\EPAM_WORK\DZ\kube\kubehw\task2\canary> foreach ($i in 1..10){(curl 192.168.59.110).Content.Trim()}
+Hello from MAIN pod: web-5584c6c5c6-qd95f
+Hello from CANARY pod: web-canary-fc68c5db6-g9575
+Hello from MAIN pod: web-5584c6c5c6-z2lhg
+Hello from MAIN pod: web-5584c6c5c6-g4bhb
+Hello from MAIN pod: web-5584c6c5c6-5zqhl
+Hello from MAIN pod: web-5584c6c5c6-nb2hk
+Hello from CANARY pod: web-canary-fc68c5db6-597f4
+Hello from MAIN pod: web-5584c6c5c6-xbtwr
+Hello from MAIN pod: web-5584c6c5c6-cww5m
+Hello from CANARY pod: web-canary-fc68c5db6-25xbv
+PS D:\EPAM_WORK\DZ\kube\kubehw\task2\canary>

@@ -1,0 +1,400 @@
+PS D:\EPAM_WORK\DZ\kube\education\task_2> kubectl create secret generic connection-string --from-literal=DATABASE_URL=postgres://connect --dry-run=client -o yaml > secret.yaml
+PS D:\EPAM_WORK\DZ\kube\education\task_2> kubectl create configmap user --from-literal=firstname=maksim --from-literal=lastname=vlasov --dry-run=client -o yaml > cm.yaml
+PS D:\EPAM_WORK\DZ\kube\education\task_2> kubectl apply -f secret.yaml
+secret/connection-string created
+PS D:\EPAM_WORK\DZ\kube\education\task_2> kubectl apply -f cm.yaml
+configmap/user created
+PS D:\EPAM_WORK\DZ\kube\education\task_2> kubectl apply -f pod.yaml
+pod/nginx created
+PS D:\EPAM_WORK\DZ\kube\education\task_2> kubectl exec -it nginx -- bash
+root@nginx:/# printenv
+KUBERNETES_SERVICE_PORT_HTTPS=443
+KUBERNETES_SERVICE_PORT=443
+DATABASE_URL=postgres://connect
+HOSTNAME=nginx
+PKG_RELEASE=1~bullseye
+HOME=/root
+KUBERNETES_PORT_443_TCP=tcp://10.96.0.1:443
+NJS_VERSION=0.7.2
+KUBERNETES_PORT_443_TCP_PROTO=tcp
+lastname=vlasov
+KUBERNETES_SERVICE_HOST=10.96.0.1
+KUBERNETES_PORT=tcp://10.96.0.1:443
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+firstname=maksim
+NGINX_VERSION=1.21.6
+_=/usr/bin/printenv
+root@nginx:/# exit
+exit
+PS D:\EPAM_WORK\DZ\kube\education\task_2> kubectl apply -f nginx-configmap.yaml
+PS D:\EPAM_WORK\DZ\kube\education\task_2> kubectl apply -f deployment.yaml
+deployment.apps/web created
+PS D:\EPAM_WORK\DZ\kube\education\task_2> kubectl get pods -o wide
+NAME                   READY   STATUS    RESTARTS   AGE     IP            NODE       NOMINATED NODE   READINESS GATES
+nginx                  1/1     Running   0          2m53s   172.17.0.8    minikube   <none>           <none>
+web                    1/1     Running   0          56m     172.17.0.7    minikube   <none>           <none>
+web-5584c6c5c6-9ph9p   1/1     Running   0          21s     172.17.0.10   minikube   <none>           <none>
+web-5584c6c5c6-tktjm   1/1     Running   0          21s     172.17.0.11   minikube   <none>           <none>
+web-5584c6c5c6-wwczs   1/1     Running   0          21s     172.17.0.12   minikube   <none>           <none>
+webreplica-pc8fh       1/1     Running   0          54m     172.17.0.9    minikube   <none>           <none>
+PS D:\EPAM_WORK\DZ\kube\education\task_2> curl 172.17.0.10
+строка:1 знак:1
++ curl 172.17.0.10
++ ~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], WebException
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+
+PS D:\EPAM_WORK\DZ\kube\education\task_2> minikube ssh
+                         _             _
+            _         _ ( )           ( )
+  ___ ___  (_)  ___  (_)| |/')  _   _ | |_      __
+/' _ ` _ `\| |/' _ `\| || , <  ( ) ( )| '_`\  /'__`\
+| ( ) ( ) || || ( ) || || |\`\ | (_) || |_) )(  ___/
+(_) (_) (_)(_)(_) (_)(_)(_) (_)`\___/'(_,__/'`\____)
+
+$ curl 172.17.0.10
+web-5584c6c5c6-9ph9p
+$ exit
+logout
+root@web-5584c6c5c6-tktjm:/# curl 172.17.0.10
+root@web-5584c6c5c6-tktjm:/# exit
+exit
+PS D:\EPAM_WORK\DZ\kube\education\task_2> kubectl expose deployment/web --type=ClusterIP --dry-run=client -o yaml > service_template.yaml
+PS D:\EPAM_WORK\DZ\kube\education\task_2> kubectl apply -f service_template.yaml
+PS D:\EPAM_WORK\DZ\kube\education\task_2> kubectl get svc
+kubernetes   ClusterIP   10.96.0.1        <none>        443/TCP   81m
+web          ClusterIP   10.102.107.169   <none>        80/TCP    4s
+PS D:\EPAM_WORK\DZ\kube\education\task_2> curl 10.102.107.169                                                                                                                                                    curl : Невозможно соединиться с удаленным сервером                                                                                                                                                               строка:1 знак:1                                                                                                                                                                                                  + curl 10.102.107.169                                                                                                                                                                                            + ~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], WebException
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+
+PS D:\EPAM_WORK\DZ\kube\education\task_2> minikube ssh
+                         _             _
+            _         _ ( )           ( )
+  ___ ___  (_)  ___  (_)| |/')  _   _ | |_      __
+/' _ ` _ `\| |/' _ `\| || , <  ( ) ( )| '_`\  /'__`\
+| ( ) ( ) || || ( ) || || |\`\ | (_) || |_) )(  ___/
+(_) (_) (_)(_)(_) (_)(_)(_) (_)`\___/'(_,__/'`\____)
+
+$ curl 10.102.107.169
+web-5584c6c5c6-9ph9p
+$ exit
+logout
+PS D:\EPAM_WORK\DZ\kube\education\task_2> kubectl exec -it web-5584c6c5c6-tktjm -- bash
+root@web-5584c6c5c6-tktjm:/# curl 10.102.107.169
+web-5584c6c5c6-wwczs
+web-5584c6c5c6-9ph9p
+web-5584c6c5c6-wwczs
+root@web-5584c6c5c6-tktjm:/# curl 10.102.107.169
+web-5584c6c5c6-9ph9p
+root@web-5584c6c5c6-tktjm:/# curl 10.102.107.169
+web-5584c6c5c6-wwczs
+root@web-5584c6c5c6-tktjm:/# curl 10.102.107.169
+web-5584c6c5c6-wwczs
+root@web-5584c6c5c6-tktjm:/# curl 10.102.107.169
+web-5584c6c5c6-9ph9p
+root@web-5584c6c5c6-tktjm:/# curl 10.102.107.169
+web-5584c6c5c6-9ph9p
+root@web-5584c6c5c6-tktjm:/# exit
+exit
+PS D:\EPAM_WORK\DZ\kube\education\task_2> kubectl apply -f service-nodeport.yaml
+service/web-np created
+PS D:\EPAM_WORK\DZ\kube\education\task_2> kubectl get service
+NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+kubernetes   ClusterIP   10.96.0.1        <none>        443/TCP        85m
+web          ClusterIP   10.102.107.169   <none>        80/TCP         3m36s
+web-np       NodePort    10.102.25.138    <none>        80:31989/TCP   4s
+PS D:\EPAM_WORK\DZ\kube\education\task_2> minikube ip
+192.168.59.109
+PS D:\EPAM_WORK\DZ\kube\education\task_2> curl 192.168.59.109:31989
+
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : web-5584c6c5c6-9ph9p
+
+RawContent        : HTTP/1.1 200 OK
+                    Connection: keep-alive
+                    Content-Length: 21
+                    Content-Type: text/plain
+                    Date: Fri, 04 Feb 2022 10:49:48 GMT
+                    Server: nginx/1.21.6
+
+                    web-5584c6c5c6-9ph9p
+
+Forms             : {}
+Headers           : {[Connection, keep-alive], [Content-Length, 21], [Content-Type, text/plain], [Date, Fri, 04 Feb 2022 10:49:48 GMT]...}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 21
+
+
+
+PS D:\EPAM_WORK\DZ\kube\education\task_2> kubectl apply -f service-headless.yaml
+service/web-headless created
+PS D:\EPAM_WORK\DZ\kube\education\task_2> kubectl exec -it web-5584c6c5c6-tktjm -- bash
+root@web-5584c6c5c6-tktjm:/# cat /etc/resolv.conf
+nameserver 10.96.0.10
+search default.svc.cluster.local svc.cluster.local cluster.local
+options ndots:5
+root@web-5584c6c5c6-tktjm:/# exit
+exit
+PS D:\EPAM_WORK\DZ\kube\education\task_2> kubectl get service
+NAME           TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+kubernetes     ClusterIP   10.96.0.1        <none>        443/TCP        115m
+web            ClusterIP   10.102.107.169   <none>        80/TCP         34m
+web-headless   ClusterIP   None             <none>        80/TCP         29m
+web-np         NodePort    10.102.25.138    <none>        80:31989/TCP   30m
+PS D:\EPAM_WORK\DZ\kube\education\task_2> kubectl exec -it web-5584c6c5c6-tktjm -- bash
+root@web-5584c6c5c6-tktjm:/# nslookup web-headless
+Server:         10.96.0.10
+Address:        10.96.0.10#53
+
+Name:   web-headless.default.svc.cluster.local
+Address: 172.17.0.11
+Name:   web-headless.default.svc.cluster.local
+Address: 172.17.0.12
+Name:   web-headless.default.svc.cluster.local
+Address: 172.17.0.10
+
+root@web-5584c6c5c6-tktjm:/# nslookup web-np
+Server:         10.96.0.10
+Address:        10.96.0.10#53
+
+Name:   web-np.default.svc.cluster.local
+Address: 10.102.25.138
+
+root@web-5584c6c5c6-tktjm:/# exit
+exit
+PS D:\EPAM_WORK\DZ\kube\education\task_2> minikube addons enable ingress
+    ▪ Using image k8s.gcr.io/ingress-nginx/controller:v1.0.4
+    ▪ Using image k8s.gcr.io/ingress-nginx/kube-webhook-certgen:v1.1.1
+    ▪ Using image k8s.gcr.io/ingress-nginx/kube-webhook-certgen:v1.1.1
+🔎  Verifying ingress addon...
+🌟  The 'ingress' addon is enabled
+PS D:\EPAM_WORK\DZ\kube\education\task_2> kubectl get pods -n ingress-nginx
+NAME                                        READY   STATUS      RESTARTS   AGE
+ingress-nginx-admission-create--1-jvdjv     0/1     Completed   0          70s
+ingress-nginx-admission-patch--1-6x7h5      0/1     Completed   1          70s
+ingress-nginx-controller-5f66978484-652dh   1/1     Running     0          70s
+PS D:\EPAM_WORK\DZ\kube\education\task_2> kubectl get pods -n ingress-nginx
+NAME                                        READY   STATUS      RESTARTS   AGE
+ingress-nginx-admission-create--1-jvdjv     0/1     Completed   0          2m9s
+ingress-nginx-admission-patch--1-6x7h5      0/1     Completed   1          2m9s
+ingress-nginx-controller-5f66978484-652dh   1/1     Running     0          2m9s
+PS D:\EPAM_WORK\DZ\kube\education\task_2> kubectl get pod ingress-nginx-controller-5f66978484-652dh -n ingress-nginx -o yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: "2022-02-04T11:22:22Z"
+  generateName: ingress-nginx-controller-5f66978484-
+  labels:
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: ingress-nginx
+    app.kubernetes.io/name: ingress-nginx
+    gcp-auth-skip-secret: "true"
+    pod-template-hash: 5f66978484
+  name: ingress-nginx-controller-5f66978484-652dh
+  namespace: ingress-nginx
+  ownerReferences:
+  - apiVersion: apps/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: ReplicaSet
+    name: ingress-nginx-controller-5f66978484
+    uid: f1ff3f91-6eb5-4387-bebd-cce6c074ad52
+  resourceVersion: "6131"
+  uid: 8bd16caf-93bb-4197-8008-8d17efaee989
+spec:
+  containers:
+  - args:
+    - /nginx-ingress-controller
+    - --election-id=ingress-controller-leader
+    - --controller-class=k8s.io/ingress-nginx
+    - --watch-ingress-without-class=true
+    - --publish-status-address=localhost
+    - --configmap=$(POD_NAMESPACE)/ingress-nginx-controller
+    - --report-node-internal-ip-address
+    - --tcp-services-configmap=$(POD_NAMESPACE)/tcp-services
+    - --udp-services-configmap=$(POD_NAMESPACE)/udp-services
+    - --validating-webhook=:8443
+    - --validating-webhook-certificate=/usr/local/certificates/cert
+    - --validating-webhook-key=/usr/local/certificates/key
+    env:
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.name
+    - name: POD_NAMESPACE
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.namespace
+    - name: LD_PRELOAD
+      value: /usr/local/lib/libmimalloc.so
+    image: k8s.gcr.io/ingress-nginx/controller:v1.0.4@sha256:545cff00370f28363dad31e3b59a94ba377854d3a11f18988f5f9e56841ef9ef
+    imagePullPolicy: IfNotPresent
+    lifecycle:
+      preStop:
+        exec:
+          command:
+          - /wait-shutdown
+    livenessProbe:
+      failureThreshold: 5
+      httpGet:
+        path: /healthz
+        port: 10254
+        scheme: HTTP
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 1
+    name: controller
+    ports:
+    - containerPort: 80
+      hostPort: 80
+      name: http
+      protocol: TCP
+    - containerPort: 443
+      hostPort: 443
+      name: https
+      protocol: TCP
+    - containerPort: 8443
+      name: webhook
+      protocol: TCP
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /healthz
+        port: 10254
+        scheme: HTTP
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 90Mi
+    securityContext:
+      allowPrivilegeEscalation: true
+      capabilities:
+        add:
+        - NET_BIND_SERVICE
+        drop:
+        - ALL
+      runAsUser: 101
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /usr/local/certificates/
+      name: webhook-cert
+      readOnly: true
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-x7wmw
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  nodeName: minikube
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: ingress-nginx
+  serviceAccountName: ingress-nginx
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: webhook-cert
+    secret:
+      defaultMode: 420
+      secretName: ingress-nginx-admission
+  - name: kube-api-access-x7wmw
+    projected:
+      defaultMode: 420
+      sources:
+          expirationSeconds: 3607
+      - configMap:
+          items:
+          - key: ca.crt                                                                                                                                                                                                      path: ca.crt                                                                                                                                                                                                   name: kube-root-ca.crt                                                                                                                                                                                       - downwardAPI:                                                                                                                                                                                                       items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2022-02-04T11:22:22Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2022-02-04T11:23:02Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2022-02-04T11:23:02Z"
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2022-02-04T11:22:22Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: docker://145105cc42f493e40b73055b80d41495024099e5fa98cdd164fe47abe94a4db3
+    image: k8s.gcr.io/ingress-nginx/controller@sha256:545cff00370f28363dad31e3b59a94ba377854d3a11f18988f5f9e56841ef9ef
+    imageID: docker-pullable://k8s.gcr.io/ingress-nginx/controller@sha256:545cff00370f28363dad31e3b59a94ba377854d3a11f18988f5f9e56841ef9ef
+    lastState: {}
+    name: controller
+    ready: true
+    restartCount: 0
+    started: true
+    state:
+      running:
+        startedAt: "2022-02-04T11:22:46Z"
+  hostIP: 192.168.59.109
+  phase: Running
+  podIP: 172.17.0.13
+  podIPs:
+  - ip: 172.17.0.13
+  qosClass: Burstable
+  startTime: "2022-02-04T11:22:22Z"
+PS D:\EPAM_WORK\DZ\kube\education\task_2> kubectl apply -f ingress.yaml
+ingress.networking.k8s.io/ingress-web created
+PS D:\EPAM_WORK\DZ\kube\education\task_2> curl $(minikube ip)
+
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : web-5584c6c5c6-wwczs
+
+RawContent        : HTTP/1.1 200 OK
+                    Connection: keep-alive
+                    Content-Length: 21
+                    Content-Type: text/plain
+                    Date: Fri, 04 Feb 2022 11:25:02 GMT
+
+                    web-5584c6c5c6-wwczs
+
+Forms             : {}
+Headers           : {[Connection, keep-alive], [Content-Length, 21], [Content-Type, text/plain], [Date, Fri, 04 Feb 2022 11:25:02 GMT]}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 21
+
+
+
+PS D:\EPAM_WORK\DZ\kube\education\task_2>

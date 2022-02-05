@@ -1,0 +1,11 @@
+PS C:\Users\Maxx> kubectl get pods -n kube-system | ConvertFrom-Csv -Delimiter " " -WarningAction SilentlyContinue | select name | % { $ctrl = kubectl describe pods $_.name -n kube-system | select-string -pattern "Controlled"; "$($_.name) is $ctrl"}
+coredns-78fcd69978-9sgvz is Controlled By:  ReplicaSet/coredns-78fcd69978
+etcd-minikube is Controlled By:  Node/minikube
+kube-apiserver-minikube is Controlled By:  Node/minikube
+kube-controller-manager-minikube is Controlled By:  Node/minikube
+kube-proxy-c7x56 is Controlled By:  DaemonSet/kube-proxy
+kube-scheduler-minikube is Controlled By:  Node/minikube
+metrics-server-57cb45c48c-vckj5 is Controlled By:  ReplicaSet/metrics-server-57cb45c48c
+metrics-server-65b979d49c-42chd is Controlled By:  ReplicaSet/metrics-server-65b979d49c
+storage-provisioner is
+PS C:\Users\Maxx>
