@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: web
+  name: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - image: nginx:latest
+          name: nginx
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: config-nginx
+              mountPath: /etc/nginx/conf.d
+            - name: nfs-dir
+              mountPath: /nfs
+      volumes:
+        - name: config-nginx
+          configMap:
+            name: nginx-configmap
+        - name: nfs-dir
+          persistentVolumeClaim:
+            claimName: nfs-pv-claim

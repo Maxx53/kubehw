@@ -1,0 +1,35 @@
+PS D:\EPAM_WORK\DZ\kube\kubehw\task3> kubectl apply -f .\deployment-emptydir.yaml
+deployment.apps/web configured
+PS D:\EPAM_WORK\DZ\kube\kubehw\task3> kubectl get pods
+NAME                     READY   STATUS    RESTARTS      AGE
+minio-575d987896-ffrn6   1/1     Running   1 (32m ago)   16h
+minio-state-0            1/1     Running   1 (32m ago)   16h
+web-565447f686-8ggww     1/1     Running   0             15s
+PS D:\EPAM_WORK\DZ\kube\kubehw\task3> kubectl exec -it web-565447f686-8ggww -- bash
+root@web-565447f686-8ggww:/# df -h | grep empty
+/dev/sda1        17G  2.5G   14G  16% /empty
+root@web-565447f686-8ggww:/# echo our-data > /empty/myfile
+root@web-565447f686-8ggww:/# cat /empty/myfile
+our-data
+root@web-565447f686-8ggww:/# exit
+exit
+PS D:\EPAM_WORK\DZ\kube\kubehw\task3> kubectl exec -it web-565447f686-8ggww -- bash
+root@web-565447f686-8ggww:/# cat /empty/myfile
+our-data
+root@web-565447f686-8ggww:/# exit
+exit
+PS D:\EPAM_WORK\DZ\kube\kubehw\task3> kubectl delete pod web-565447f686-8ggww
+pod "web-565447f686-8ggww" deleted
+PS D:\EPAM_WORK\DZ\kube\kubehw\task3> kubectl get pods
+NAME                     READY   STATUS    RESTARTS      AGE
+minio-575d987896-ffrn6   1/1     Running   1 (36m ago)   16h
+minio-state-0            1/1     Running   1 (36m ago)   16h
+web-565447f686-gb8f4     1/1     Running   0             9s
+PS D:\EPAM_WORK\DZ\kube\kubehw\task3> kubectl exec -it web-565447f686-gb8f4 -- bash
+root@web-565447f686-gb8f4:/# cat /empty/myfile
+cat: /empty/myfile: No such file or directory
+root@web-565447f686-gb8f4:/# ls -la /empty
+total 8
+drwxrwxrwx 2 root root 4096 Feb  6 11:05 .
+drwxr-xr-x 1 root root 4096 Feb  6 11:05 ..
+root@web-565447f686-gb8f4:/#

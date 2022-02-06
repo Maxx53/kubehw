@@ -1,0 +1,33 @@
+PS D:\EPAM_WORK\DZ\kube\education\task_3> kubectl apply -f pv.yaml
+persistentvolume/minio-deployment-pv created
+PS D:\EPAM_WORK\DZ\kube\education\task_3> kubectl get pv
+NAME                  CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM   STORAGECLASS   REASON   AGE
+minio-deployment-pv   5Gi        RWO            Retain           Available                                   6s
+PS D:\EPAM_WORK\DZ\kube\education\task_3> kubectl apply -f pvc.yaml
+persistentvolumeclaim/minio-deployment-claim created
+PS D:\EPAM_WORK\DZ\kube\education\task_3> kubectl get pv
+NAME                  CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                            STORAGECLASS   REASON   AGE
+minio-deployment-pv   5Gi        RWO            Retain           Bound    default/minio-deployment-claim                           56s
+PS D:\EPAM_WORK\DZ\kube\education\task_3> kubectl get pvc
+minio-deployment-claim   Bound    minio-deployment-pv   5Gi        RWO                           51s
+PS D:\EPAM_WORK\DZ\kube\education\task_3> kubectl apply -f deployment.yaml
+deployment.apps/minio created
+service/minio-app created
+PS D:\EPAM_WORK\DZ\kube\education\task_3> kubectl apply -f statefulset.yaml
+service/minio-state created                                            
+PS D:\EPAM_WORK\DZ\kube\education\task_3> kubectl get pod
+NAME                     READY   STATUS    RESTARTS   AGE
+minio-575d987896-ffrn6   1/1     Running   0          94s
+minio-state-0            1/1     Running   0          76s
+PS D:\EPAM_WORK\DZ\kube\education\task_3> kubectl get sts
+NAME          READY   AGE
+minio-state   1/1     84s
+PS D:\EPAM_WORK\DZ\kube\education\task_3> kubectl get service
+NAME          TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+kubernetes    ClusterIP   10.96.0.1      <none>        443/TCP          37m
+minio-app     NodePort    10.111.67.96   <none>        9001:30008/TCP   3m52s
+minio-state   ClusterIP   None           <none>        9000/TCP         3m43s
+PS D:\EPAM_WORK\DZ\kube\education\task_3> $kube = minikube ip
+PS D:\EPAM_WORK\DZ\kube\education\task_3> (curl ${kube}:30008).StatusCode
+200
+PS D:\EPAM_WORK\DZ\kube\education\task_3>
