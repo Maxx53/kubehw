@@ -1,0 +1,34 @@
+PS C:\Users\Maxx\.kube> kubectl auth can-i create deployments --namespace kube-system
+yes
+PS C:\Users\Maxx\.kube> openssl genrsa -out k8s_user.key 2048
+Generating RSA private key, 2048 bit long modulus (2 primes)
+.......................................................................+++++
+........................................................................+++++
+e is 65537 (0x010001)
+PS C:\Users\Maxx\.kube> openssl req -new -key k8s_user.key -out k8s_user.csr -subj "/CN=k8s_user"
+PS C:\Users\Maxx\.kube> openssl x509 -req -in k8s_user.csr -CA ~/.minikube/ca.crt -CAkey ~/.minikube/ca.key -CAcreateserial -out k8s_user.crt -days 500
+Signature ok
+subject=CN = k8s_user
+Getting CA Private Key
+PS C:\Users\Maxx\.kube> kubectl config set-credentials k8s_user --client-certificate=k8s_user.crt --client-key=k8s_user.key
+User "k8s_user" set.
+PS C:\Users\Maxx\.kube> kubectl config set-context k8s_user --cluster=minikube --user=k8s_user
+Context "k8s_user" created.
+PS C:\Users\Maxx\.kube> notepad .\config
+PS C:\Users\Maxx\.kube> kubectl config use-context k8s_user
+Switched to context "k8s_user".
+PS C:\Users\Maxx\.kube> kubectl get node
+Error from server (Forbidden): nodes is forbidden: User "k8s_user" cannot list resource "nodes" in API group "" at the cluster scope
+PS C:\Users\Maxx\.kube> kubectl get pod
+Error from server (Forbidden): pods is forbidden: User "k8s_user" cannot list resource "pods" in API group "" in the namespace "default"
+PS C:\Users\Maxx\.kube> kubectl config use-context minikube
+Switched to context "minikube".
+PS C:\Users\Maxx\.kube> cd D:\EPAM_WORK\DZ\kube\education\task_4
+PS D:\EPAM_WORK\DZ\kube\education\task_4> kubectl apply -f binding.yaml
+rolebinding.rbac.authorization.k8s.io/k8s_user created
+PS D:\EPAM_WORK\DZ\kube\education\task_4> kubectl get pod
+NAME                     READY   STATUS    RESTARTS        AGE
+minio-575d987896-ffrn6   1/1     Running   1 (4h21m ago)   20h
+minio-state-0            1/1     Running   1 (4h21m ago)   20h
+web-5584c6c5c6-42tbn     1/1     Running   0               74m
+PS D:\EPAM_WORK\DZ\kube\education\task_4>

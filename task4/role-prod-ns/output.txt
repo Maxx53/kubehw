@@ -1,0 +1,88 @@
+PS C:\Users\Maxx\.kube> kubectl create ns prod
+PS C:\Users\Maxx\.kube> openssl genrsa -out prod_admin.key 2048
+Generating RSA private key, 2048 bit long modulus (2 primes)
+......+++++
+.......................................................................................................................................................+++++
+e is 65537 (0x010001)
+PS C:\Users\Maxx\.kube> openssl genrsa -out prod_view.key 2048
+Generating RSA private key, 2048 bit long modulus (2 primes)
+....................................+++++
+.........................+++++
+e is 65537 (0x010001)
+"
+PS C:\Users\Maxx\.kube> openssl req -new -key prod_view.key -out prod_view.csr -subj "/CN=prod_view"
+/ca.key -CAcreateserial -out prod_admin.crt -days 500
+Signature ok
+subject=CN = prod_admin
+PS C:\Users\Maxx\.kube> openssl x509 -req -in prod_view.csr -CA ~/.minikube/ca.crt -CAkey ~/.minikube/ca.key -CAcreateserial -out prod_view.crt -days 500
+subject=CN = prod_view
+Getting CA Private Key
+User "prod_admin" set.
+client-key=prod_view.key
+User "prod_view" set.
+amespace=prod
+Context "prod_admin" created.
+PS C:\Users\Maxx\.kube> kubectl config set-context prod_view --cluster=minikube --user=prod_view --namespace=prod
+Context "prod_view" created.
+PS C:\Users\Maxx\.kube> cd D:\EPAM_WORK\DZ\kube\kubehw\task4\role-prod-ns
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\role-prod-ns> kubectl apply -f .\prod_admin.yaml
+role.rbac.authorization.k8s.io/role_prod_admin created
+rolebinding.rbac.authorization.k8s.io/binding_prod_admin created
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\role-prod-ns> kubectl apply -f .\prod_view.yaml
+role.rbac.authorization.k8s.io/role_prod_view created
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\role-prod-ns>
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\role-prod-ns> kubectl config use-context prod_admin
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\role-prod-ns> kubectl apply -f ..\..\task2\canary\deployment.yaml
+deployment.apps/web created
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\role-prod-ns> kubectl get pods
+NAME                   READY   STATUS              RESTARTS   AGE
+web-5584c6c5c6-5qs7d   0/1     ContainerCreating   0          14s
+web-5584c6c5c6-9btdl   0/1     ContainerCreating   0          14s
+web-5584c6c5c6-dwxcm   0/1     ContainerCreating   0          14s
+web-5584c6c5c6-h52s2   0/1     ContainerCreating   0          14s
+web-5584c6c5c6-np5bk   0/1     ContainerCreating   0          14s
+web-5584c6c5c6-qzwqd   0/1     ContainerCreating   0          14s
+web-5584c6c5c6-tnjzn   0/1     ContainerCreating   0          14s
+web-5584c6c5c6-vr7h5   0/1     ContainerCreating   0          14s
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\role-prod-ns> kubectl get deploy
+NAME   READY   UP-TO-DATE   AVAILABLE   AGE
+web    0/10    10           0           23s
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\role-prod-ns> kubectl get roles
+NAME              CREATED AT
+role_prod_admin   2022-02-06T16:36:45Z
+role_prod_view    2022-02-06T16:36:48Z
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\role-prod-ns> kubectl get ns
+Error from server (Forbidden): namespaces is forbidden: User "prod_admin" cannot list resource "namespaces" in API group "" at the cluster scope
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\role-prod-ns> kubectl get nodes
+Error from server (Forbidden): nodes is forbidden: User "prod_admin" cannot list resource "nodes" in API group "" at the cluster scope
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\role-prod-ns>
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\role-prod-ns> kubectl config use-context prod_view
+Switched to context "prod_view".
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\role-prod-ns> kubectl get deploy
+NAME   READY   UP-TO-DATE   AVAILABLE   AGE
+web    0/10    10           0           2m4s
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\role-prod-ns> kubectl get pods
+NAME                   READY   STATUS              RESTARTS   AGE
+web-5584c6c5c6-4vv8s   0/1     ContainerCreating   0          2m10s
+web-5584c6c5c6-5qs7d   0/1     ContainerCreating   0          2m10s
+web-5584c6c5c6-9btdl   0/1     ContainerCreating   0          2m10s
+web-5584c6c5c6-bb8mb   0/1     ContainerCreating   0          2m10s
+web-5584c6c5c6-dwxcm   0/1     ContainerCreating   0          2m10s
+web-5584c6c5c6-h52s2   0/1     ContainerCreating   0          2m10s
+web-5584c6c5c6-np5bk   0/1     ContainerCreating   0          2m10s
+web-5584c6c5c6-qzwqd   0/1     ContainerCreating   0          2m10s
+web-5584c6c5c6-tnjzn   0/1     ContainerCreating   0          2m10s
+web-5584c6c5c6-vr7h5   0/1     ContainerCreating   0          2m10s
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\role-prod-ns> kubectl delete deploy web
+Error from server (Forbidden): deployments.apps "web" is forbidden: User "prod_view" cannot delete resource "deployments" in API group "apps" in the namespace "prod"
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\role-prod-ns> kubectl delete pod web-5584c6c5c6-4vv8s
+Error from server (Forbidden): pods "web-5584c6c5c6-4vv8s" is forbidden: User "prod_view" cannot delete resource "pods" in API group "" in the namespace "prod"
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\role-prod-ns> kubectl get roles
+NAME              CREATED AT
+role_prod_admin   2022-02-06T16:36:45Z
+role_prod_view    2022-02-06T16:36:48Z
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\role-prod-ns> kubectl get nodes
+Error from server (Forbidden): nodes is forbidden: User "prod_view" cannot list resource "nodes" in API group "" at the cluster scope
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\role-prod-ns> kubectl get ns
+Error from server (Forbidden): namespaces is forbidden: User "prod_view" cannot list resource "namespaces" in API group "" at the cluster scope
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\role-prod-ns>

@@ -1,0 +1,70 @@
+PS C:\Users\Maxx\.kube> openssl genrsa -out deploy_view.key 2048
+Generating RSA private key, 2048 bit long modulus (2 primes)
+........+++++
+..........+++++
+e is 65537 (0x010001)
+PS C:\Users\Maxx\.kube> openssl genrsa -out deploy_edit.key 2048
+Generating RSA private key, 2048 bit long modulus (2 primes)
+..........+++++
+....+++++
+e is 65537 (0x010001)
+PS C:\Users\Maxx\.kube>
+PS C:\Users\Maxx\.kube> openssl req -new -key deploy_view.key -out deploy_view.csr -subj "/CN=deploy_view"
+PS C:\Users\Maxx\.kube> openssl req -new -key deploy_edit.key -out deploy_edit.csr -subj "/CN=deploy_edit"
+PS C:\Users\Maxx\.kube>
+PS C:\Users\Maxx\.kube> openssl x509 -req -in deploy_view.csr -CA ~/.minikube/ca.crt -CAkey ~/.minikube/ca.key -CAcreateserial -out deploy_view.crt -days 500
+Signature ok
+subject=CN = deploy_view
+Getting CA Private Key
+PS C:\Users\Maxx\.kube> openssl x509 -req -in deploy_edit.csr -CA ~/.minikube/ca.crt -CAkey ~/.minikube/ca.key -CAcreateserial -out deploy_edit.crt -days 500
+Signature ok
+subject=CN = deploy_edit
+Getting CA Private Key
+PS C:\Users\Maxx\.kube>
+PS C:\Users\Maxx\.kube> kubectl config set-credentials deploy_view --client-certificate=deploy_view.crt --client-key=deploy_view.key
+User "deploy_view" set.
+PS C:\Users\Maxx\.kube> kubectl config set-credentials deploy_edit --client-certificate=deploy_edit.crt --client-key=deploy_edit.key
+User "deploy_edit" set.
+PS C:\Users\Maxx\.kube>
+PS C:\Users\Maxx\.kube> kubectl config set-context deploy_view --cluster=minikube --user=deploy_view
+Context "deploy_view" created.
+PS C:\Users\Maxx\.kube> kubectl config set-context deploy_edit --cluster=minikube --user=deploy_edit
+Context "deploy_edit" created.
+PS C:\Users\Maxx\.kube> cd D:\EPAM_WORK\DZ\kube\kubehw\task4
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4> kubectl apply -f .\deploy_edit.yaml
+clusterrole.rbac.authorization.k8s.io/role_deploy_edit created
+rolebinding.rbac.authorization.k8s.io/binding_deploy_edit created
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4> kubectl apply -f .\deploy_view.yaml
+clusterrole.rbac.authorization.k8s.io/role_deploy_view created
+rolebinding.rbac.authorization.k8s.io/binding_deploy_view created
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4> kubectl.exe config use-context deploy_view
+Switched to context "deploy_view".
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4> kubectl get pods
+NAME                     READY   STATUS    RESTARTS        AGE
+minio-575d987896-ffrn6   1/1     Running   1 (5h53m ago)   22h
+minio-state-0            1/1     Running   1 (5h53m ago)   22h
+web-5584c6c5c6-42tbn     1/1     Running   0               166m
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4> kubectl get deployments
+NAME    READY   UP-TO-DATE   AVAILABLE   AGE
+minio   1/1     1            1           22h
+web     1/1     1            1           171m
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4> kubectl delete pod web-5584c6c5c6-42tbn
+Error from server (Forbidden): pods "web-5584c6c5c6-42tbn" is forbidden: User "deploy_view" cannot delete resource "pods" in API group "" in the namespace "default"
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4> kubectl delete deploy web
+Error from server (Forbidden): deployments.apps "web" is forbidden: User "deploy_view" cannot delete resource "deployments" in API group "apps" in the namespace "default"
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4> kubectl.exe config use-context deploy_edit
+Switched to context "deploy_edit".
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4> kubectl get pods
+NAME                     READY   STATUS    RESTARTS        AGE
+minio-575d987896-ffrn6   1/1     Running   1 (5h54m ago)   22h
+minio-state-0            1/1     Running   1 (5h54m ago)   22h
+web-5584c6c5c6-42tbn     1/1     Running   0               167m
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4> kubectl get deployments
+NAME    READY   UP-TO-DATE   AVAILABLE   AGE
+minio   1/1     1            1           22h
+web     1/1     1            1           172m
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4> kubectl delete pod web-5584c6c5c6-42tbn
+pod "web-5584c6c5c6-42tbn" deleted
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4> kubectl delete deploy web
+deployment.apps "web" deleted
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4>

@@ -1,0 +1,28 @@
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\service-account> kubectl apply -f .\sa_full.yaml
+serviceaccount/sa-namespace-admin created
+role.rbac.authorization.k8s.io/role_sa-namespace-admin created
+rolebinding.rbac.authorization.k8s.io/binding_sa-namespace-admin created
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\service-account> $secretName = kubectl get sa sa-namespace-admin -o jsonpath="{.secrets[0].name}"
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\service-account> $secretName
+sa-namespace-admin-token-7q8tv
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\service-account> $rawToken = kubectl get secrets $secretName -o jsonpath="{.data.token}"
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\service-account> $token = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($rawToken))
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\service-account> $env:TOKEN = $token
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\service-account> kubectl config set-credentials sa-namespace-admin --token=$env:TOKEN
+User "sa-namespace-admin" set.
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\service-account> kubectl config set-context sa-namespace-admin --cluster=minikube --user=sa-namespace-admin --namespace=default
+Context "sa-namespace-admin" created.
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\service-account> kubectl config use-context sa-namespace-admin
+Switched to context "sa-namespace-admin".
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\service-account> kubectl get pods
+NAME                     READY   STATUS    RESTARTS        AGE
+minio-575d987896-ffrn6   1/1     Running   1 (6h36m ago)   22h
+minio-state-0            1/1     Running   1 (6h36m ago)   22h
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\service-account> kubectl delete pod minio-575d987896-ffrn6
+pod "minio-575d987896-ffrn6" deleted
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\service-account>
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\service-account> kubectl get pods
+NAME                     READY   STATUS    RESTARTS        AGE
+minio-575d987896-8rc2g   1/1     Running   0               6s
+minio-state-0            1/1     Running   1 (6h36m ago)   22h
+PS D:\EPAM_WORK\DZ\kube\kubehw\task4\service-account>
